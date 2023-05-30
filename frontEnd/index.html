@@ -162,7 +162,7 @@
             document.querySelector(".cards").innerHTML = prodsToShow.map(p => `
                 <div class="card ${p.type}">
                     <div class="img-wrapper">
-                        <img onload='((e)=>{e.target.parentElement.parentElement.classList.add("loaded")})(event)' src="${p.image}" />
+                        <img onload='((e)=>{e.target.parentElement.parentElement.classList.add("loaded")})(event)' src="${p.image}?w=500" />
                     </div>
                     <div class="title">
                         ${p.name}
