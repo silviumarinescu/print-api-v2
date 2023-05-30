@@ -1,0 +1,11 @@
+query myQuery($id: String!, $locale: String) {
+  product(id: $id, locale: $locale) {
+    sku
+    productName
+    popularity
+    dateAdded
+    image {
+      url
+    }
+  }
+}

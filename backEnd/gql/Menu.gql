@@ -1,0 +1,15 @@
+query myQuery($id: String! $locale: String) {
+  menu(id: $id, locale: $locale) {
+    name
+    slug
+    itemsCollection {
+      items {
+        sys {
+          id
+        }
+        __typename
+      }
+    }
+    __typename
+  }
+}

@@ -1,0 +1,12 @@
+query myQuery($id: String!, $locale: String) {
+  tile(id: $id, locale: $locale) {
+    title
+    subtitle
+    product {
+      sku
+      productName
+    }
+    sys{id}
+    __typename
+  }
+}

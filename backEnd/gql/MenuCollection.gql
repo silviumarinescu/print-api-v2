@@ -1,0 +1,12 @@
+{
+  menuCollection {
+    items {
+      name
+      slug
+      sys {
+        id
+      }
+      __typename
+    }
+  }
+}

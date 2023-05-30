@@ -1,0 +1,15 @@
+query myQuery($id: String!, $locale: String) {
+  productCategories(id: $id, locale: $locale) {
+    name
+    sku
+    image {
+      url
+    }
+    activeCategory
+    popularity
+    sys {
+      id
+    }
+    __typename
+  }
+}

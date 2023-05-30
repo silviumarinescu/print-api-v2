@@ -1,0 +1,14 @@
+query myQuery($id: String!, $locale: String) {
+  productGroup(id: $id, locale: $locale) {
+    name
+    slug
+    productsCollection(locale: $locale) {
+      items {
+        sys {
+          id
+        }
+        __typename
+      }
+    }
+  }
+}

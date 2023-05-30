@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .head {
+            text-align: center;
+        }
+
+        .wrapper {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .cards {
+            display: flex;
+            width: 100%;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .card {
+            width: 260px;
+            height: 300px;
+            transform: scale(0);
+            transition: all 0.4s linear;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+
+        .card .title {
+            height: 40px;
+            line-height: 40px;
+            padding-left: 20px;
+            background-color: lightgray;
+        }
+
+        .card.ProductCategories .title {
+            background-color: green;
+        }
+
+        .card.loaded {
+            transform: scale(1);
+        }
+
+        .img-wrapper {
+            position: relative;
+            width: 260px;
+            height: 260px;
+        }
+
+        .card img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .menu {
+            width: 400px;
+        }
+
+        .menu .item {
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .sub-items {
+            display: none;
+            margin-left: 40px;
+        }
+
+        .open>.sub-items {
+            display: block;
+        }
+
+        .selected>.title {
+            color: red;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="head">loading...</div>
+    <div class="wrapper">
+        <div class="menu"></div>
+        <div class="cards"></div>
+    </div>
+    <script>
+        const getProducts = (item, path = '') => {
+            let products = [];
+            if (item && item.items) {
+                for (let it of item.items) {
+                    if (it) {
+                        let currentPath = '';
+                        if (item && item.data && item.data.type != "Product" && item.data.type != "ProductCategories")
+                            currentPath = item.data.slug;
+
+                        products.push(...getProducts(it, path + (currentPath ? `/${currentPath}` : '')))
+                    }
+                }
+            }
+
+            if (item && item.data && (item.data.type == "Product" || item.data.type == "ProductCategories")) {
+                products.push({
+                    path,
+                    type: item.data.type,
+                    name: item.data.name,
+                    image: item.data.image,
+                    sku: item.data.sku,
+                    popularity: item.data.popularity,
+                    dateAdded: item.data.dateAdded
+                });
+            }
+            return products;
+        }
+        let products = [];
+        let prodsToShow = [];
+        let allData = [];
+        let limit = 0;
+
+        window.itemClick = (e) => {
+            e.stopPropagation();
+            const item = e.target.closest('.item');
+            item.classList.toggle("open");
+            document.querySelectorAll('.item.selected').forEach(item => {
+                item.classList.remove("selected")
+            });
+            item.classList.add("selected");
+            showItems(item.getAttribute("data-category"))
+        }
+
+
+        const showItems = (category = '') => {
+            prodsToShow = products.filter(p => !category || p.path.startsWith(category))
+            document.querySelector('.head').innerHTML = `showing ${prodsToShow.length} products`;
+            document.querySelector(".cards").innerHTML = prodsToShow.map(p => `
+                <div class="card ${p.type}">
+                    <div class="img-wrapper">
+                        <img onload='((e)=>{e.target.parentElement.parentElement.classList.add("loaded")})(event)' src="${p.image}" />
+                    </div>
+                    <div class="title">
+                        ${p.name}
+                    </div>
+                </div>
+            `).join('')
+        }
+
+        const countItems = (category = '') => products.filter(p => !category || p.path.startsWith(category)).length
+
+        const buildMenu = (items, path = '') => {
+            let html = '';
+            if (!path) {
+                html = `    
+                <div class='item selected' onclick='((e)=>{itemClick(e)})(event)' data-category=''>
+                    <div class='title'>All Products (${countItems()})</div>
+                </div>
+                `
+            }
+            for (let i = 0; i < items.length; i++) {
+                if (items[i] && items[i].data && items[i].data.type != "Product" && items[i].data.type != "ProductCategories") {
+                    html += `<div class='item' onclick='((e)=>{itemClick(e)})(event)' data-category='${path + (items[i].data.slug ? `/${items[i].data.slug}` : '')}'>
+                         <div class='title'>${items[i].data.name} (${countItems(path + (items[i].data.slug ? `/${items[i].data.slug}` : ''))})</div>
+                            ${items[i].items ? `
+                            <div class='sub-items'>
+                                ${buildMenu(items[i].items, path + (items[i].data.slug ? `/${items[i].data.slug}` : ''))}
+                            </div> 
+                            `: ''}
+                        </div>
+                    `
+                }
+            }
+            return html;
+        }
+
+        (async () => {
+            allData = await (await fetch(`/allData`)).json()
+            products = getProducts({ items: allData.items }).filter(p => p.name);
+            document.querySelector('.menu').innerHTML += buildMenu(allData.items);
+            showItems();
+        })();
+    </script>
+</body>
+
+</html>
