@@ -1,6 +1,6 @@
 const https = require("https");
 
-const makeRequest = (query, variables) =>
+const _makeRequest = (query, variables) =>
   new Promise((callback) => {
     query = JSON.stringify({ query, variables });
     var options = {
@@ -49,5 +49,5 @@ const makeRequest = (query, variables) =>
   });
 
 module.exports = async (query, variables) => {
-  return await makeRequest(query, variables);
+  return await _makeRequest(query, variables);
 };
