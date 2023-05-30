@@ -11,6 +11,10 @@
             font-family: Arial, Helvetica, sans-serif;
         }
 
+        .seatch {
+            text-align: center;
+        }
+
         .head {
             text-align: center;
         }
@@ -94,6 +98,9 @@
 </head>
 
 <body>
+    <div class="seatch">
+        <input type="text" onkeyup="((e)=>{showItems()})(event)" placeholder="search">
+    </div>
     <div class="head">loading...</div>
     <div class="wrapper">
         <div class="menu"></div>
@@ -131,6 +138,8 @@
         let prodsToShow = [];
         let allData = [];
         let limit = 0;
+        let category = '';
+
 
         window.itemClick = (e) => {
             e.stopPropagation();
@@ -140,12 +149,15 @@
                 item.classList.remove("selected")
             });
             item.classList.add("selected");
-            showItems(item.getAttribute("data-category"))
+            category = item.getAttribute("data-category");
+            showItems()
         }
 
 
-        const showItems = (category = '') => {
-            prodsToShow = products.filter(p => !category || p.path.startsWith(category))
+        const showItems = () => {
+            const search = document.querySelector('input').value.toLowerCase();
+
+            prodsToShow = products.filter(p => (!category || p.path.startsWith(category)) && (!search || p.name.toLowerCase().indexOf(search) != -1))
             document.querySelector('.head').innerHTML = `showing ${prodsToShow.length} products`;
             document.querySelector(".cards").innerHTML = prodsToShow.map(p => `
                 <div class="card ${p.type}">
